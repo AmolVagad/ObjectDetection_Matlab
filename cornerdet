@@ -1,0 +1,65 @@
+%% Implemntation using Harris corner detection for object detection 
+
+% Detect corners using harris detection 
+
+clc;
+clear;
+close all;
+%% Implementation of SURF based feature detection and object detection
+% Read the object image 
+
+I1 = imread('img1.JPG');
+I1 = imrotate(I1,180);
+I1 = rgb2gray(I1);
+figure;
+imshow(I1);
+title('Image1');
+
+% Read the scene image 
+I2 = imread('img2.JPG');
+I2 = rgb2gray(I2);
+figure;
+imshow(I2);
+title('Image2');
+
+
+
+points1 = detectHarrisFeatures(I1);
+points2 = detectHarrisFeatures(I2);
+
+
+% Visualizing the strongest points in the object image 
+figure;
+imshow(I1);
+title('100 Strongest Feature Points from Box Image');
+hold on;
+plot(selectStrongest(points1, 200));
+
+
+% Visualizing the strongest points in the target scene image
+figure;
+imshow(I2);
+title('300 Strongest Feature Points from Scene Image');
+hold on;
+plot(selectStrongest(points2, 300));
+
+
+
+
+% Extract the neighborhood features 
+[features1,valid_points1] = extractFeatures(I1,points1);
+[features2,valid_points2] = extractFeatures(I2,points2);
+
+
+% match the features 
+indexPairs = matchFeatures(features1,features2);
+
+% retrieve the location of corresponding points 
+matchedPoints1 = valid_points1(indexPairs(:,1),:);
+matchedPoints2 = valid_points2(indexPairs(:,2),:);
+
+% display the corresponding points 
+
+figure; 
+showMatchedFeatures(I1,I2,matchedPoints1,matchedPoints2);
+title('Result using reguloar feature matching');
