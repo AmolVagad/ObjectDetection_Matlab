@@ -1,7 +1,7 @@
 clc;
 clear;
 close all;
-%% Implementation of SURF based feature detection and object detection
+%% Initial pre-processing 
 % Read the object image 
 
 boxImage = imread('object.JPG');
@@ -17,7 +17,7 @@ sceneImage = rgb2gray(sceneImage);
 figure;
 imshow(sceneImage);
 title('Image of a Cluttered Scene');
-%{
+%% Implementation of SURF based feature detection and object detection
 % Detect the featrure points using SURF feature detection 
 boxPoints = detectSURFFeatures(boxImage);
 scenePoints = detectSURFFeatures(sceneImage);
@@ -25,19 +25,18 @@ figure;
 imshow(sceneImage);
 
 
-
 % Visualizing the strongest points in the object image 
 figure;
 imshow(boxImage);
-title('100 Strongest Feature Points from Box Image');
+title('300 Strongest SURF Feature Points from Box Image');
 hold on;
-plot(selectStrongest(boxPoints, 200));
+plot(selectStrongest(boxPoints, 300));
 
 
 % Visualizing the strongest points in the target scene image
 figure;
 imshow(sceneImage);
-title('300 Strongest Feature Points from Scene Image');
+title('300 Strongest Feature Points from Scene Image SURF');
 hold on;
 plot(selectStrongest(scenePoints, 300));
 
@@ -54,7 +53,7 @@ matchedScenePoints = scenePoints(boxPairs(:, 2), :);
 figure;
 showMatchedFeatures(boxImage, sceneImage, matchedBoxPoints, ...
     matchedScenePoints, 'montage');
-title('Putatively Matched Points (Including Outliers)');
+title('Putatively Matched Points (Including Outliers) SURF');
 
 
 % Locating the object in the scene 
@@ -66,7 +65,7 @@ title('Putatively Matched Points (Including Outliers)');
 figure;
 showMatchedFeatures(boxImage, sceneImage, inlierBoxPoints, ...
     inlierScenePoints, 'montage');
-title('Matched Points (Inliers Only)');
+title('Matched Points (Inliers Only) SURF');
 
 
 %Drawing bounding box on the reference image 
@@ -86,20 +85,49 @@ figure;
 imshow(sceneImage);
 hold on;
 line(newBoxPolygon(:, 1), newBoxPolygon(:, 2), 'Color', 'y');
-title('Detected Box');
+title('Detected Box using SURF');
 
 
-
-%}
-
-
-
-%% Detect corners using the FAST Algorithm 
-
-
+%% Implementation of BRISK based feature detection and object detection
+% Detect the featrure points using SURF feature detection 
+boxPointsB = detectBRISKFeatures(boxImage);
+scenePointsB = detectBRISKFeatures(sceneImage);
+figure;
+imshow(sceneImage);
 
 
+% Visualizing the strongest points in the object image 
+figure;
+imshow(boxImage);
+title('300 Strongest BRISK Feature Points from Box Image');
+hold on;
+plot(selectStrongest(boxPointsB, 300));
 
+
+% Visualizing the strongest points in the target scene image
+figure;
+imshow(sceneImage);
+title('300 Strongest BRISK Feature Points from Scene Image');
+hold on;
+plot(selectStrongest(scenePointsB, 300));
+
+% extracting feature descriptors at interest points in both images 
+boxFeaturesB= extractFeatures(boxImage, boxPointsB);
+sceneFeaturesB = extractFeatures(sceneImage, scenePointsB);
+
+% Matching the features using the descriptors 
+boxPairsB = matchFeatures(boxFeaturesB, sceneFeaturesB);
+
+% Display the matched features
+matchedBoxPointsB = boxPointsB(boxPairsB(:, 1), :);
+matchedScenePointsB = scenePointsB(boxPairsB(:, 2), :);
+figure;
+showMatchedFeatures(boxImage, sceneImage, matchedBoxPointsB, ...
+    matchedScenePointsB, 'montage');
+title('Putatively Matched Points (Including Outliers) using BRISK');
+
+
+disp('BRISK Detected very few matchpoints for this data set to calculate the estimated geometry transform ');
 
 
 

@@ -1,11 +1,10 @@
-%% Implemntation using Harris corner detection for feature detection 
-
+%% Initial preprocessing 
 % Detect corners using harris detection 
 
 clc;
 clear;
 close all;
-%% Implementation of SURF based feature detection and object detection
+
 % Read the object image 
 
 I1 = imread('img1.JPG');
@@ -22,6 +21,7 @@ I2 = rgb2gray(I2);
 %imshow(I2);
 %title('Image2');
 
+%% Implemntation using Harris corner detection for feature detection 
 
 
 pointsHarr1 = detectHarrisFeatures(I1);
@@ -63,13 +63,6 @@ fprintf('Number of matching features for second image using Harris = %d\n',match
 
 figure; 
 showMatchedFeatures(I1,I2,matchedPoints1,matchedPoints2);
-title('Result using harris corner detection ');
-
-
-% display the corresponding points 
-
-figure; 
-showMatchedFeatures(I1,I2,matchedPointsHarr1,matchedPointsHarr2);
 title('Result using harris corner detection ');
 
 
