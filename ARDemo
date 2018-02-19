@@ -1,0 +1,19 @@
+clear
+close all
+clc
+
+refImg = imread('batman.JPG');
+
+refImggray = rgb2gray(refImg);
+refPts = detectSURFFeatures(refImggray);
+
+refFeatures = extractfeatures(refImggray,refPts);
+
+
+figure;
+imshow(refImg), hold on;
+plot(refPts.selectStrongest(100));
+
+
+subjImg = imread(' desk.JPG');
+subImggray = rgb2gray(subjImg);

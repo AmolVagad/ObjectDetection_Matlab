@@ -1,0 +1,29 @@
+clear
+close all
+clc
+
+refImg = imread('object.JPG');
+refImg = imrotate(refImg,180);
+refImggray = rgb2gray(refImg);
+
+refPts = detectSURFFeatures(refImggray);
+
+refFeatures = extractFeatures(refImggray,refPts);
+
+
+figure;
+imshow(refImg), hold on;
+plot(refPts.selectStrongest(100));
+
+subImg = imread(' desk.JPG');
+subImggray = rgb2gray(subImg);
+
+
+subPts = detectSURFFeatures(subjImggray);
+
+subFeatures = extractFeatures(subjImggray,refPts);
+
+
+figure;
+imshow(refImg), hold on;
+plot(refPts.selectStrongest(100));
