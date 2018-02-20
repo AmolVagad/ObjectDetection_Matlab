@@ -1,0 +1,367 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>stereo_dept_estimate</title><meta name="generator" content="MATLAB 9.0"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-02-19"><meta name="DC.source" content="stereo_dept_estimate.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Initializing the parameters</a></li><li><a href="#3">Creating video player</a></li><li><a href="#4">Rectifying the video frames</a></li><li><a href="#5">Computing the disparity</a></li><li><a href="#6">Reconstructing the 3D scene</a></li><li><a href="#7">Detecting the people in the left image</a></li><li><a href="#8">Determine The Distance of Each Person to the Camera</a></li><li><a href="#9">Process the rest of the video</a></li></ul></div><pre class="codeinput">clear
+clc
+close <span class="string">all</span>
+</pre><h2>Initializing the parameters<a name="2"></a></h2><p>Load the stereoParameters object.</p><pre class="codeinput">load(<span class="string">'handshakeStereoParams.mat'</span>);
+
+<span class="comment">% Visualize camera extrinsics.</span>
+showExtrinsics(stereoParams);
+</pre><img vspace="5" hspace="5" src="stereo_dept_estimate_01.png" alt=""> <h2>Creating video player<a name="3"></a></h2><pre class="codeinput">videoFileLeft = <span class="string">'handshake_left.avi'</span>;
+videoFileRight = <span class="string">'handshake_right.avi'</span>;
+
+readerLeft = vision.VideoFileReader(videoFileLeft, <span class="string">'VideoOutputDataType'</span>, <span class="string">'uint8'</span>);
+readerRight = vision.VideoFileReader(videoFileRight, <span class="string">'VideoOutputDataType'</span>, <span class="string">'uint8'</span>);
+player = vision.DeployableVideoPlayer(<span class="string">'Location'</span>, [20, 400]);
+</pre><h2>Rectifying the video frames<a name="4"></a></h2><pre class="codeinput">frameLeft = readerLeft.step();
+frameRight = readerRight.step();
+
+[frameLeftRect, frameRightRect] = <span class="keyword">...</span>
+    rectifyStereoImages(frameLeft, frameRight, stereoParams);
+
+figure;
+imshow(stereoAnaglyph(frameLeftRect, frameRightRect));
+title(<span class="string">'Rectified Video Frames'</span>);
+</pre><img vspace="5" hspace="5" src="stereo_dept_estimate_02.png" alt=""> <h2>Computing the disparity<a name="5"></a></h2><p>Disparity(distance between the individual left and right pixels) is proportionalto distance of corresponding world from the camera</p><pre class="codeinput">frameLeftGray  = rgb2gray(frameLeftRect);
+frameRightGray = rgb2gray(frameRightRect);
+
+disparityMap = disparity(frameLeftGray, frameRightGray);
+figure;
+imshow(disparityMap, [0, 64]);
+title(<span class="string">'Disparity Map'</span>);
+colormap <span class="string">jet</span>
+colorbar
+</pre><img vspace="5" hspace="5" src="stereo_dept_estimate_03.png" alt=""> <h2>Reconstructing the 3D scene<a name="6"></a></h2><pre class="codeinput">points3D = reconstructScene(disparityMap, stereoParams);
+
+<span class="comment">% Convert to meters and create a pointCloud object</span>
+points3D = points3D ./ 1000;
+ptCloud = pointCloud(points3D, <span class="string">'Color'</span>, frameLeftRect);
+
+<span class="comment">% Create a streaming point cloud viewer</span>
+player3D = pcplayer([-3, 3], [-3, 3], [0, 8], <span class="string">'VerticalAxis'</span>, <span class="string">'y'</span>, <span class="keyword">...</span>
+    <span class="string">'VerticalAxisDir'</span>, <span class="string">'down'</span>);
+
+<span class="comment">% Visualize the point cloud</span>
+view(player3D, ptCloud);
+</pre><img vspace="5" hspace="5" src="stereo_dept_estimate_04.png" alt=""> <h2>Detecting the people in the left image<a name="7"></a></h2><p>Create the people detector object. Limit the minimum object size for speed.</p><pre class="codeinput">peopleDetector = vision.PeopleDetector(<span class="string">'MinSize'</span>, [166 83]);
+
+<span class="comment">% Detect people.</span>
+bboxes = peopleDetector.step(frameLeftGray);
+</pre><h2>Determine The Distance of Each Person to the Camera<a name="8"></a></h2><pre class="codeinput"><span class="comment">%Find the 3-D world coordinates of the centroid of each detected person and compute the distance from the centroid to the camera in meters.</span>
+
+<span class="comment">% Find the centroids of detected people.</span>
+centroids = [round(bboxes(:, 1) + bboxes(:, 3) / 2), <span class="keyword">...</span>
+    round(bboxes(:, 2) + bboxes(:, 4) / 2)];
+
+<span class="comment">% Find the 3-D world coordinates of the centroids.</span>
+centroidsIdx = sub2ind(size(disparityMap), centroids(:, 2), centroids(:, 1));
+X = points3D(:, :, 1);
+Y = points3D(:, :, 2);
+Z = points3D(:, :, 3);
+centroids3D = [X(centroidsIdx)'; Y(centroidsIdx)'; Z(centroidsIdx)'];
+
+<span class="comment">% Find the distances from the camera in meters.</span>
+dists = sqrt(sum(centroids3D .^ 2));
+
+<span class="comment">% Display the detected people and their distances.</span>
+labels = cell(1, numel(dists));
+<span class="keyword">for</span> i = 1:numel(dists)
+    labels{i} = sprintf(<span class="string">'%0.2f meters'</span>, dists(i));
+<span class="keyword">end</span>
+figure;
+imshow(insertObjectAnnotation(frameLeftRect, <span class="string">'rectangle'</span>, bboxes, labels));
+title(<span class="string">'Detected People'</span>);
+</pre><img vspace="5" hspace="5" src="stereo_dept_estimate_05.png" alt=""> <h2>Process the rest of the video<a name="9"></a></h2><pre class="codeinput"><span class="keyword">while</span> ~isDone(readerLeft) &amp;&amp; ~isDone(readerRight)
+    <span class="comment">% Read the frames.</span>
+    frameLeft = readerLeft.step();
+    frameRight = readerRight.step();
+
+    <span class="comment">% Rectify the frames.</span>
+    [frameLeftRect, frameRightRect] = <span class="keyword">...</span>
+        rectifyStereoImages(frameLeft, frameRight, stereoParams);
+
+    <span class="comment">% Convert to grayscale.</span>
+    frameLeftGray  = rgb2gray(frameLeftRect);
+    frameRightGray = rgb2gray(frameRightRect);
+
+    <span class="comment">% Compute disparity.</span>
+    disparityMap = disparity(frameLeftGray, frameRightGray);
+
+    <span class="comment">% Reconstruct 3-D scene.</span>
+    points3D = reconstructScene(disparityMap, stereoParams);
+    points3D = points3D ./ 1000;
+    ptCloud = pointCloud(points3D, <span class="string">'Color'</span>, frameLeftRect);
+    view(player3D, ptCloud);
+
+    <span class="comment">% Detect people.</span>
+    bboxes = peopleDetector.step(frameLeftGray);
+
+    <span class="keyword">if</span> ~isempty(bboxes)
+        <span class="comment">% Find the centroids of detected people.</span>
+        centroids = [round(bboxes(:, 1) + bboxes(:, 3) / 2), <span class="keyword">...</span>
+            round(bboxes(:, 2) + bboxes(:, 4) / 2)];
+
+        <span class="comment">% Find the 3-D world coordinates of the centroids.</span>
+        centroidsIdx = sub2ind(size(disparityMap), centroids(:, 2), centroids(:, 1));
+        X = points3D(:, :, 1);
+        Y = points3D(:, :, 2);
+        Z = points3D(:, :, 3);
+        centroids3D = [X(centroidsIdx), Y(centroidsIdx), Z(centroidsIdx)];
+
+        <span class="comment">% Find the distances from the camera in meters.</span>
+        dists = sqrt(sum(centroids3D .^ 2, 2));
+
+        <span class="comment">% Display the detect people and their distances.</span>
+        labels = cell(1, numel(dists));
+        <span class="keyword">for</span> i = 1:numel(dists)
+            labels{i} = sprintf(<span class="string">'%0.2f meters'</span>, dists(i));
+        <span class="keyword">end</span>
+        dispFrame = insertObjectAnnotation(frameLeftRect, <span class="string">'rectangle'</span>, bboxes,<span class="keyword">...</span>
+            labels);
+    <span class="keyword">else</span>
+        dispFrame = frameLeftRect;
+    <span class="keyword">end</span>
+
+    <span class="comment">% Display the frame.</span>
+    step(player, dispFrame);
+<span class="keyword">end</span>
+
+<span class="comment">% Clean up.</span>
+reset(readerLeft);
+reset(readerRight);
+release(player);
+</pre><img vspace="5" hspace="5" src="stereo_dept_estimate_06.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2016a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+clear 
+clc
+close all
+
+%% Initializing the parameters 
+% Load the stereoParameters object.
+load('handshakeStereoParams.mat');
+
+% Visualize camera extrinsics.
+showExtrinsics(stereoParams);
+
+
+
+%% Creating video player 
+
+videoFileLeft = 'handshake_left.avi';
+videoFileRight = 'handshake_right.avi';
+
+readerLeft = vision.VideoFileReader(videoFileLeft, 'VideoOutputDataType', 'uint8');
+readerRight = vision.VideoFileReader(videoFileRight, 'VideoOutputDataType', 'uint8');
+player = vision.DeployableVideoPlayer('Location', [20, 400]);
+
+
+%% Rectifying the video frames 
+
+frameLeft = readerLeft.step();
+frameRight = readerRight.step();
+
+[frameLeftRect, frameRightRect] = ...
+    rectifyStereoImages(frameLeft, frameRight, stereoParams);
+
+figure;
+imshow(stereoAnaglyph(frameLeftRect, frameRightRect));
+title('Rectified Video Frames');
+
+%% Computing the disparity 
+% Disparity(distance between the individual left and right pixels) is
+% proportionalto distance of corresponding world from the camera
+
+frameLeftGray  = rgb2gray(frameLeftRect);
+frameRightGray = rgb2gray(frameRightRect);
+
+disparityMap = disparity(frameLeftGray, frameRightGray);
+figure;
+imshow(disparityMap, [0, 64]);
+title('Disparity Map');
+colormap jet
+colorbar
+
+
+%% Reconstructing the 3D scene 
+points3D = reconstructScene(disparityMap, stereoParams);
+
+% Convert to meters and create a pointCloud object
+points3D = points3D ./ 1000;
+ptCloud = pointCloud(points3D, 'Color', frameLeftRect);
+
+% Create a streaming point cloud viewer
+player3D = pcplayer([-3, 3], [-3, 3], [0, 8], 'VerticalAxis', 'y', ...
+    'VerticalAxisDir', 'down');
+
+% Visualize the point cloud
+view(player3D, ptCloud);
+
+
+%% Detecting the people in the left image
+% Create the people detector object. Limit the minimum object size for
+% speed.
+peopleDetector = vision.PeopleDetector('MinSize', [166 83]);
+
+% Detect people.
+bboxes = peopleDetector.step(frameLeftGray);
+
+%% Determine The Distance of Each Person to the Camera
+%Find the 3-D world coordinates of the centroid of each detected person and compute the distance from the centroid to the camera in meters.
+
+% Find the centroids of detected people.
+centroids = [round(bboxes(:, 1) + bboxes(:, 3) / 2), ...
+    round(bboxes(:, 2) + bboxes(:, 4) / 2)];
+
+% Find the 3-D world coordinates of the centroids.
+centroidsIdx = sub2ind(size(disparityMap), centroids(:, 2), centroids(:, 1));
+X = points3D(:, :, 1);
+Y = points3D(:, :, 2);
+Z = points3D(:, :, 3);
+centroids3D = [X(centroidsIdx)'; Y(centroidsIdx)'; Z(centroidsIdx)'];
+
+% Find the distances from the camera in meters.
+dists = sqrt(sum(centroids3D .^ 2));
+
+% Display the detected people and their distances.
+labels = cell(1, numel(dists));
+for i = 1:numel(dists)
+    labels{i} = sprintf('%0.2f meters', dists(i));
+end
+figure;
+imshow(insertObjectAnnotation(frameLeftRect, 'rectangle', bboxes, labels));
+title('Detected People');
+
+
+
+%% Process the rest of the video 
+
+while ~isDone(readerLeft) && ~isDone(readerRight)
+    % Read the frames.
+    frameLeft = readerLeft.step();
+    frameRight = readerRight.step();
+
+    % Rectify the frames.
+    [frameLeftRect, frameRightRect] = ...
+        rectifyStereoImages(frameLeft, frameRight, stereoParams);
+
+    % Convert to grayscale.
+    frameLeftGray  = rgb2gray(frameLeftRect);
+    frameRightGray = rgb2gray(frameRightRect);
+
+    % Compute disparity.
+    disparityMap = disparity(frameLeftGray, frameRightGray);
+
+    % Reconstruct 3-D scene.
+    points3D = reconstructScene(disparityMap, stereoParams);
+    points3D = points3D ./ 1000;
+    ptCloud = pointCloud(points3D, 'Color', frameLeftRect);
+    view(player3D, ptCloud);
+
+    % Detect people.
+    bboxes = peopleDetector.step(frameLeftGray);
+
+    if ~isempty(bboxes)
+        % Find the centroids of detected people.
+        centroids = [round(bboxes(:, 1) + bboxes(:, 3) / 2), ...
+            round(bboxes(:, 2) + bboxes(:, 4) / 2)];
+
+        % Find the 3-D world coordinates of the centroids.
+        centroidsIdx = sub2ind(size(disparityMap), centroids(:, 2), centroids(:, 1));
+        X = points3D(:, :, 1);
+        Y = points3D(:, :, 2);
+        Z = points3D(:, :, 3);
+        centroids3D = [X(centroidsIdx), Y(centroidsIdx), Z(centroidsIdx)];
+
+        % Find the distances from the camera in meters.
+        dists = sqrt(sum(centroids3D .^ 2, 2));
+
+        % Display the detect people and their distances.
+        labels = cell(1, numel(dists));
+        for i = 1:numel(dists)
+            labels{i} = sprintf('%0.2f meters', dists(i));
+        end
+        dispFrame = insertObjectAnnotation(frameLeftRect, 'rectangle', bboxes,...
+            labels);
+    else
+        dispFrame = frameLeftRect;
+    end
+
+    % Display the frame.
+    step(player, dispFrame);
+end
+
+% Clean up.
+reset(readerLeft);
+reset(readerRight);
+release(player);
+
+
+
+##### SOURCE END #####
+--></body></html>

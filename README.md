@@ -1,5 +1,5 @@
 
-
+All the projects are inspired by the tutorials provided by MATLAB using the Computer Vision toolbox
 
 
 Implemented Corner Detection using:
@@ -44,3 +44,20 @@ Object Detection Results:
 ![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/html/objdet_06.png)
 ![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/html/objdet_07.png)
 ![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/html/objdet_08.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Implemented Image Reconstruction
