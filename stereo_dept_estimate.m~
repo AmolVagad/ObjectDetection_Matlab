@@ -1,0 +1,14 @@
+clear 
+clc
+close all
+
+%% Initializing the parameters 
+% Load the stereoParameters object.
+load('handshakeStereoParams.mat');
+
+% Visualize camera extrinsics.
+showExtrinsics(stereoParams);
+
+
+
+%% Creating 

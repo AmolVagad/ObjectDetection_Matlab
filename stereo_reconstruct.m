@@ -23,7 +23,7 @@ title('Composite Image (Red - Left Image, Cyan - Right Image)');
 
 
 
-%% Implementation of SURF based feature detection and object detection
+%% Implementation of SURF based feature detection 
 % Detect the featrure points using SURF feature detection 
 
 LeftPoints = detectSURFFeatures(LeftImageGray);
@@ -46,7 +46,7 @@ title('300 Strongest Feature Points from Right Image SURF');
 hold on;
 plot(selectStrongest(RightPoints, 300));
 
-% extracting feature descriptors at interest points in both images 
+%% Extracting feature descriptors at interest points in both images 
 [LeftFeatures, LeftPoints] = extractFeatures(LeftImageGray, LeftPoints);
 [RighFeatures, RightPoints] = extractFeatures(RightImageGray, RightPoints);
 
@@ -62,7 +62,7 @@ showMatchedFeatures(LeftImage, RightImage, matchedLeftPoints, ...
 title('Putatively Matched Points (Including Outliers) SURF');
 hold on
 
-% Locating the object in the scene 
+%% Generating the fundamental matrix
 [fMatrix inliers, status] = ...
     estimateFundamentalMatrix(matchedLeftPoints, matchedRightPoints, 'Method','RANSAC','NumTrials',10000,'DistanceThreshold',0.1,'Confidence',99.99);
 
@@ -80,7 +80,7 @@ end
 inlierleft = matchedLeftPoints(inliers,:);
 inlierright = matchedRightPoints(inliers,:);
 
-% Displaying the matched points after removing the outliers
+%% Displaying the matched points after removing the outliers using RANSAC
 figure;
 showMatchedFeatures(LeftImage, RightImage, inlierleft, ...
     inlierright, 'montage');
