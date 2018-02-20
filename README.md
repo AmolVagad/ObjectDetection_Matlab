@@ -9,11 +9,11 @@ Implemented Corner Detection using:
 
 Results :
 
-![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/FAST_Cornerdet.jpg)
-![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/HarrisCornerdet.jpg)
+![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/data/FAST_Cornerdet.jpg)
+![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/data/HarrisCornerdet.jpg)
 
 
-![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/MinEigVal_Cornerdet.jpg)
+![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/data/MinEigVal_Cornerdet.jpg)
 
 
 
@@ -34,16 +34,16 @@ Object Detection Results:
 
 
 
-![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/html/objdet_01.png)
+![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/Results/objdet_01.png)
 
-![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/html/objdet_02.png)
+![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/Results/objdet_02.png)
 
-![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/html/objdet_03.png)
-![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/html/objdet_04.png)
-![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/html/objdet_05.png)
-![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/html/objdet_06.png)
-![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/html/objdet_07.png)
-![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/html/objdet_08.png)
+![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/Results/objdet_03.png)
+![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/Results/objdet_04.png)
+![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/Results/objdet_05.png)
+![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/Results/objdet_06.png)
+![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/Results/objdet_07.png)
+![Alt Text](https://github.com/AmolVagad/ObjectDetection_Matlab/blob/master/Results/objdet_08.png)
 
 
 
